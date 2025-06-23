@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Halaman Penyiar</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px; /* Increased max-width for better layout */
+        margin: 40px auto;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      input[type="text"],
+      input[type="date"],
+      input[type="time"] {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        color: white;
+      }
+      #btnStart {
+        background-color: #28a745;
+      }
+      #btnStop {
+        background-color: #dc3545;
+      }
+      #btnForceStopServer {
+        background-color: orange;
+        margin-top: 10px;
+      }
+      #status {
+        margin-top: 20px;
+        font-weight: bold;
+      }
+      .archive-section {
+        /* New style for archive section */
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-top: 30px; /* Added margin-top for separation */
+        border-radius: 8px;
+      }
+      .controls-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      #searchBoxPenyiar {
+        /* Specific ID for penyiar's search box */
+        flex-grow: 1;
+        padding: 10px;
+      }
+      #sortOptionsPenyiar {
+        /* Specific ID for penyiar's sort options */
+        padding: 10px;
+      }
+      .archive-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+      }
+      .archive-item:last-child {
+        border-bottom: none;
+      }
+      .archive-info span {
+        display: block;
+      }
+      .archive-info .title {
+        font-weight: bold;
+      }
+      .archive-info .meta {
+        font-size: 0.9em;
+        color: #555;
+      }
+      .delete-btn {
+        /* Style for delete button */
+        background-color: #f44336; /* Red color */
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+      }
+      .delete-btn:hover {
+        background-color: #d32f2f;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Halaman Penyiar</h1>
+    <form id="broadcastForm">
+      <div class="form-group">
+        <label for="title">Judul Siaran</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          required
+          value="{{ live_broadcast.title if live_broadcast else '' }}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="date">Tanggal Siaran</label>
+        <input
+          type="date"
+          id="date"
+          name="date"
+          required
+          value="{{ live_broadcast.broadcast_date if live_broadcast else '' }}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="startTime">Waktu Mulai</label>
+        <input
+          type="time"
+          id="startTime"
+          name="startTime"
+          required
+          value="{{ live_broadcast.start_time if live_broadcast else '' }}"
+        />
+      </div>
+    </form>
+
+    <button id="btnStart" {% if live_broadcast %} disabled {% endif %}>
+      Mulai Siaran
+    </button>
+    <button id="btnStop" {% if not live_broadcast %} disabled {% endif %}>
+      Hentikan Siaran
+    </button>
+
+    <div id="status" style="color: grey">
+      Status: {% if live_broadcast %}
+      <span style="color: red">Sedang Siaran - {{ live_broadcast.title }}</span
+      ><br />
+      <small
+        >(Siaran ini dimulai sebelum halaman di-refresh. Untuk menghentikannya,
+        klik "Hentikan Siaran" jika Anda yang memulai rekaman ini, atau
+        "Hentikan Siaran di Server" jika ini adalah siaran lama.)</small
+      >
+      {% else %} Tidak Siaran {% endif %}
+    </div>
+
+    {% if live_broadcast %}
+    <button id="btnForceStopServer">Hentikan Siaran di Server</button>
+    {% endif %}
+
+    <hr />
+    <div class="archive-section">
+      <h2>Arsip Rekaman 📂</h2>
+      <div class="controls-container">
+        <input
+          type="text"
+          id="searchBoxPenyiar"
+          placeholder="Cari berdasarkan judul atau tanggal..."
+        />
+        <select id="sortOptionsPenyiar">
+          <option value="date_desc">Tanggal (Terbaru)</option>
+          <option value="date_asc">Tanggal (Terlama)</option>
+          <option value="title_asc">Judul (A-Z)</option>
+          <option value="title_desc">Judul (Z-A)</option>
+        </select>
+      </div>
+      <div id="archive-list-penyiar">
+        <p id="no-archives-penyiar">Memuat arsip...</p>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/penyiar.js') }}"></script>
+  </body>
+</html>
